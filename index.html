@@ -39,7 +39,6 @@
     min-height: 100vh;
   }
 
-  /* ── Header ── */
   .header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -72,10 +71,8 @@
   }
   .clear-btn:hover { color: var(--text); }
 
-  /* ── Layout ── */
   .layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 56px); }
 
-  /* ── Sidebar ── */
   .sidebar {
     background: var(--surface);
     border-right: 1px solid var(--border);
@@ -89,7 +86,6 @@
     overflow-y: auto;
   }
 
-  /* Upload zones */
   .upload-section { display: flex; flex-direction: column; gap: 8px; }
   .upload-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 2px; }
   .uzone {
@@ -100,19 +96,25 @@
     cursor: pointer;
     transition: all 0.15s;
     background: var(--bg);
+    position: relative;
   }
   .uzone:hover { border-color: var(--accent-blue); background: var(--accent-blue-bg); }
   .uzone.ok { border-style: solid; border-color: var(--accent-blue); background: var(--accent-blue-bg); }
+  .uzone.drag-over {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue-bg);
+    border-style: solid;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(24,95,165,0.15);
+  }
   .uzone-icon { font-size: 20px; margin-bottom: 4px; display: block; }
   .uzone-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
   .uzone-text strong { color: var(--text); display: block; }
   .uzone-file { font-size: 10px; color: var(--accent-blue); margin-top: 4px; word-break: break-all; }
   input[type=file] { display: none; }
 
-  /* Divider */
   .sidebar-divider { height: 1px; background: var(--border-subtle); }
 
-  /* Filters */
   .filter-section { display: flex; flex-direction: column; gap: 10px; }
   .filter-group { display: flex; flex-direction: column; gap: 5px; }
   .filter-group-header {
@@ -133,7 +135,6 @@
   .chip.on { background: var(--text); color: var(--bg); border-color: var(--text); }
   .chip .cnt { opacity: 0.55; font-size: 10px; margin-left: 2px; }
 
-  /* Stat cards in sidebar */
   .stat-cards { display: flex; flex-direction: column; gap: 6px; }
   .stat-card {
     display: flex; align-items: center; gap: 10px;
@@ -160,7 +161,6 @@
   .sc-new .indicator { background: #639922; }
   .sc-new .count { color: var(--accent-green); }
 
-  /* Search */
   .search-wrap { position: relative; }
   .search-wrap input {
     width: 100%; font-size: 12px; padding: 7px 10px 7px 30px;
@@ -170,10 +170,8 @@
   .search-wrap input:focus { border-color: var(--accent-blue); }
   .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-tertiary); }
 
-  /* ── Main ── */
   .main { padding: 1.5rem; display: flex; flex-direction: column; gap: 0; }
 
-  /* Toolbar */
   .toolbar {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 12px;
@@ -182,7 +180,6 @@
   .result-count strong { color: var(--text); font-weight: 600; }
   .active-filters { font-size: 11px; color: var(--text-tertiary); }
 
-  /* Cards */
   .cards { display: flex; flex-direction: column; gap: 6px; }
   .card {
     background: var(--surface);
@@ -237,7 +234,6 @@
   .note-new { color: var(--accent-orange); }
   .note-prev { text-decoration: line-through; opacity: .45; }
 
-  /* Empty / hint */
   .hint-box {
     background: var(--surface); border: 1px dashed var(--border);
     border-radius: 10px; padding: 3rem 2rem; text-align: center;
@@ -246,7 +242,6 @@
   .hint-box .icon { font-size: 32px; display: block; margin-bottom: 10px; }
   .empty { text-align: center; padding: 2.5rem; color: var(--text-tertiary); font-size: 13px; }
 
-  /* Pagination */
   .pagination { display: flex; gap: 4px; justify-content: center; margin-top: 16px; flex-wrap: wrap; align-items: center; }
   .pagination button {
     font-size: 11px; padding: 4px 10px;
@@ -261,7 +256,6 @@
 </head>
 <body>
 
-<!-- Header -->
 <header class="header">
   <div class="header-title">심의 변경 현황</div>
   <div class="header-sep"></div>
@@ -276,15 +270,12 @@
 </header>
 
 <div class="layout">
-  <!-- Sidebar -->
   <aside class="sidebar">
-
-    <!-- Upload -->
     <div class="upload-section">
       <div class="upload-label">이전 버전 파일</div>
       <div class="uzone" id="uz-prev" onclick="document.getElementById('f-prev').click()">
         <span class="uzone-icon">📂</span>
-        <div class="uzone-text"><strong>클릭하여 업로드</strong>.xlsx</div>
+        <div class="uzone-text"><strong>클릭하거나 파일을 드래그하세요</strong>.xlsx</div>
         <div class="uzone-file" id="fn-prev"></div>
       </div>
       <input type="file" id="f-prev" accept=".xlsx,.xls">
@@ -292,7 +283,7 @@
       <div class="upload-label" style="margin-top:4px">최신 버전 파일</div>
       <div class="uzone" id="uz-new" onclick="document.getElementById('f-new').click()">
         <span class="uzone-icon">📂</span>
-        <div class="uzone-text"><strong>클릭하여 업로드</strong>.xlsx</div>
+        <div class="uzone-text"><strong>클릭하거나 파일을 드래그하세요</strong>.xlsx</div>
         <div class="uzone-file" id="fn-new"></div>
       </div>
       <input type="file" id="f-new" accept=".xlsx,.xls">
@@ -300,7 +291,6 @@
 
     <div class="sidebar-divider"></div>
 
-    <!-- Stat cards -->
     <div class="filter-section">
       <div class="filter-group-header">변경 현황</div>
       <div class="stat-cards">
@@ -330,7 +320,6 @@
 
     <div class="sidebar-divider"></div>
 
-    <!-- Filters -->
     <div class="filter-section">
       <div class="filter-group">
         <div class="filter-group-header">
@@ -357,15 +346,12 @@
 
     <div class="sidebar-divider"></div>
 
-    <!-- Search -->
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
       <input type="text" placeholder="소재명 검색..." oninput="setQ(this.value)">
     </div>
-
   </aside>
 
-  <!-- Main -->
   <main class="main">
     <div class="toolbar">
       <div class="result-count" id="result-count"></div>
@@ -386,6 +372,66 @@
 const PER = 30;
 let allRows = [], selStats = new Set(), selProds = new Set(), curQ = '', curPage = 1;
 let prevData = null, newData = null;
+
+// ── 드래그앤드랍 설정 ──
+function setupDragDrop(zoneId, inputId, type) {
+  const zone = document.getElementById(zoneId);
+
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    zone.classList.add('drag-over');
+  });
+
+  zone.addEventListener('dragleave', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    zone.classList.remove('drag-over');
+  });
+
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+      alert('.xlsx 또는 .xls 파일만 업로드 가능합니다.');
+      return;
+    }
+    handleFile(file, type);
+  });
+}
+
+setupDragDrop('uz-prev', 'f-prev', 'prev');
+setupDragDrop('uz-new', 'f-new', 'new');
+
+function handleFile(file, type) {
+  const fn = file.name;
+  if (type === 'prev') {
+    document.getElementById('fn-prev').textContent = fn;
+    document.getElementById('uz-prev').classList.add('ok');
+    readFile(file, ab => {
+      prevData = parseXlsx(ab);
+      saveData(prevData, fn);
+      updateSavedBadge({ filename: fn, at: new Date().toLocaleString('ko-KR') });
+      if (newData) runCompare();
+    });
+  } else {
+    document.getElementById('fn-new').textContent = fn;
+    document.getElementById('uz-new').classList.add('ok');
+    readFile(file, ab => {
+      newData = parseXlsx(ab);
+      if (!prevData) {
+        const saved = loadData();
+        if (saved) { prevData = saved.rows; updateSavedBadge(saved.meta); }
+      }
+      saveData(newData, fn);
+      updateSavedBadge({ filename: fn, at: new Date().toLocaleString('ko-KR') });
+      runCompare();
+    });
+  }
+}
 
 // ── 파싱 ──
 function parseXlsx(ab) {
@@ -447,38 +493,17 @@ function updateSavedBadge(meta) {
   }
 }
 
-// ── 업로드 ──
+// ── 파일 input 클릭 업로드 ──
 document.getElementById('f-prev').onchange = function () {
   if (!this.files[0]) return;
-  const fn = this.files[0].name;
-  document.getElementById('fn-prev').textContent = fn;
-  document.getElementById('uz-prev').classList.add('ok');
-  readFile(this.files[0], ab => {
-    prevData = parseXlsx(ab);
-    saveData(prevData, fn);
-    updateSavedBadge({ filename: fn, at: new Date().toLocaleString('ko-KR') });
-    if (newData) runCompare();
-  });
+  handleFile(this.files[0], 'prev');
 };
-
 document.getElementById('f-new').onchange = function () {
   if (!this.files[0]) return;
-  const fn = this.files[0].name;
-  document.getElementById('fn-new').textContent = fn;
-  document.getElementById('uz-new').classList.add('ok');
-  readFile(this.files[0], ab => {
-    newData = parseXlsx(ab);
-    if (!prevData) {
-      const saved = loadData();
-      if (saved) { prevData = saved.rows; updateSavedBadge(saved.meta); }
-    }
-    saveData(newData, fn);
-    updateSavedBadge({ filename: fn, at: new Date().toLocaleString('ko-KR') });
-    runCompare();
-  });
+  handleFile(this.files[0], 'new');
 };
 
-// ── 복사 기능 ──
+// ── 복사 ──
 function copyResults() {
   const rows = filtered();
   if (!rows.length) { alert('복사할 항목이 없습니다.'); return; }
@@ -490,7 +515,6 @@ function copyResults() {
   let lastType = null;
   rows.forEach((r, i) => {
     const shimui = addPeriod(r.shimui_no);
-    // 상태 그룹 구분선
     if (r.type !== lastType) {
       if (lastType !== null) text += '\n';
       text += `▶ ${tmap[r.type]||r.type}\n${'─'.repeat(50)}\n`;
@@ -498,7 +522,6 @@ function copyResults() {
     }
     text += `\n[${i+1}] ${r.name}\n`;
     if (r.type === 'to_done') {
-      // 심의완료는 파일명 + 심의번호만
       if (shimui) text += `    ${shimui}\n`;
     } else {
       text += `    ${r.status}`;
@@ -517,32 +540,24 @@ function copyResults() {
 
 // ── 비교 ──
 function runCompare() {
-  // 소재명별 마지막 행(최신 이력) 기준으로 비교
   const prevLast = {};
   if (prevData) prevData.forEach(r => { prevLast[r.name] = r; });
   const newLast = {};
   newData.forEach(r => { newLast[r.name] = r; });
-
   const changed = [];
   const allNames = [...new Set(newData.map(r => r.name))];
-
   for (const name of allNames) {
     const nr = newLast[name];
     const pr = prevLast[name];
     if (!nr) continue;
-
     if (!pr) {
-      // 이전 파일에 없는 소재 → 신규 접수
       changed.push({ ...nr, prevStatus: '', prevNote: '', type: 'new_item' });
     } else if (pr.status !== nr.status) {
-      // 상태 변경
       const ft = toType(nr.status);
       if (ft) changed.push({ ...nr, prevStatus: pr.status, prevNote: pr.note, type: ft });
     } else if (pr.note !== nr.note && nr.note) {
-      // note가 새로 생겼거나 달라진 경우
       changed.push({ ...nr, prevStatus: nr.status, prevNote: pr.note, type: 'note_only' });
     } else if (!pr.shimui_no && nr.shimui_no) {
-      // 심의번호가 새로 생긴 경우 (없었다가 채워진 것)
       changed.push({ ...nr, prevStatus: nr.status, prevNote: pr.note, type: 'note_only' });
     }
   }
@@ -563,11 +578,9 @@ function toType(s) {
 }
 
 function updateCounts() {
-  // 상품 필터만 적용한 기준으로 카드 숫자 계산 (상태 필터는 제외 — 상태별 분포를 보여주기 위해)
   let base = allRows;
   if (selProds.size > 0) base = base.filter(r => selProds.has(getProd(r.name)));
   if (curQ) base = base.filter(r => r.name.toLowerCase().includes(curQ.toLowerCase()));
-
   document.getElementById('cnt-all').textContent = base.length;
   document.getElementById('cnt-fix').textContent = base.filter(r => r.type === 'to_fix').length;
   document.getElementById('cnt-act').textContent = base.filter(r => r.type === 'to_active').length;
@@ -577,7 +590,6 @@ function updateCounts() {
   document.getElementById('cnt-new').textContent = base.filter(r => r.type === 'new_item').length;
 }
 
-// ── 상품 분류 ──
 function getProd(n) {
   if (!n) return '기타';
   if (n.includes('신제품검색')) return '신제품검색';
@@ -612,7 +624,6 @@ function buildProdBar() {
   document.getElementById('pbar').innerHTML = html || '<span style="font-size:11px;color:var(--text-tertiary)">없음</span>';
 }
 
-// ── 필터 ──
 function toggleStat(el) {
   const s = el.dataset.stat;
   if (selStats.has(s)) { selStats.delete(s); el.classList.remove('on'); }
@@ -655,7 +666,6 @@ function syncStatCards() {
 }
 function setQ(v) { curQ = v; curPage = 1; render(); }
 
-// ── 심의번호 기간 계산 ──
 function addPeriod(s) {
   if (!s || !s.includes('손해보험협회 심의필') || s.includes('~')) return s;
   const m = s.match(/\((\d{4})\.(\d{2})\.(\d{2})\)/);
@@ -666,7 +676,6 @@ function addPeriod(s) {
   return s.replace(`(${m[1]}.${m[2]}.${m[3]})`, `(${m[1]}.${m[2]}.${m[3]}~${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())})`);
 }
 
-// ── 배지 ──
 function sC(s) {
   if (!s) return 'x';
   if (/완료|승인|적격|심사완료|조건부/.test(s)) return 'done';
@@ -682,7 +691,6 @@ function badge(s) {
 }
 function cardCls(t) { return t==='to_fix'?'c-fix':t==='to_active'?'c-act':t==='to_done'?'c-don':t==='to_drop'?'c-drp':t==='new_item'?'c-new':'c-note'; }
 
-// ── 렌더 ──
 const TYPE_ORDER = { to_fix: 0, to_active: 1, to_done: 2, to_drop: 3, note_only: 4, new_item: 5 };
 
 function filtered() {
@@ -690,7 +698,6 @@ function filtered() {
   if (selStats.size > 0) r = r.filter(x => selStats.has(x.type));
   if (selProds.size > 0) r = r.filter(x => selProds.has(getProd(x.name)));
   if (curQ) r = r.filter(x => x.name.toLowerCase().includes(curQ.toLowerCase()));
-  // 상태 순서 정렬: 수정요청 → 심의진행 → 완료 → 드랍 → 메모업뎃 → 신규
   r = [...r].sort((a, b) => (TYPE_ORDER[a.type] ?? 9) - (TYPE_ORDER[b.type] ?? 9));
   return r;
 }
@@ -755,7 +762,6 @@ function render() {
     </div>`;
   }).join('') + '</div>';
 
-  // Pagination
   const pg = document.getElementById('pg');
   if (pages <= 1) { pg.innerHTML = ''; updateAF(); return; }
   let btns = '';
@@ -773,7 +779,6 @@ function goPage(n) {
   document.querySelector('.main').scrollTo(0, 0);
 }
 
-// ── 초기 로드 ──
 (function init() {
   const saved = loadData();
   if (saved) { prevData = saved.rows; updateSavedBadge(saved.meta); }
