@@ -435,21 +435,50 @@ function handleFile(file, type) {
 }
 
 // ── 파싱 ──
+// 헤더 행을 '파일명' / '진행사항' 컬럼명으로 자동 탐색해서, 파일 양식(컬럼 순서/개수)이
+// 바뀌어도 컬럼명만 같으면 그대로 인식하도록 함.
+function findHeaderRowIdx(raw) {
+  const maxScan = Math.min(raw.length, 10);
+  for (let i = 0; i < maxScan; i++) {
+    const row = (raw[i] || []).map(c => String(c || '').trim());
+    if (row.includes('파일명') && row.includes('진행사항')) return i;
+  }
+  return -1;
+}
+
 function parseXlsx(ab) {
   const wb = XLSX.read(ab, { type: 'array' });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+  const hIdx = findHeaderRowIdx(raw);
+  if (hIdx === -1) {
+    alert('엑셀에서 "파일명" / "진행사항" 컬럼을 찾지 못했습니다. 파일 형식을 확인해주세요.');
+    return [];
+  }
+  const header = raw[hIdx].map(c => String(c || '').trim());
+  const idx = name => header.indexOf(name);
+
+  const cName = idx('파일명');
+  const cStatus = idx('진행사항');
+  const cNote = idx('비고');
+  const cAssoc = idx('손보협회 심의필 번호');          // 협회 심의필 (최우선)
+  const cCombined = idx('준법감시인 확인필 번호/손보협회 심의필 번호'); // 구버전 통합컬럼
+  const cComp = idx('준법감시인 확인필 번호');          // 준법감시인 확인필
+
   const rows = [];
-  for (let i = 2; i < raw.length; i++) {
+  for (let i = hIdx + 1; i < raw.length; i++) {
     const r = raw[i];
-    const name = String(r[5] || '').trim();
-    const status = String(r[7] || '').trim();
+    const name = String(r[cName] || '').trim();
+    const status = String(r[cStatus] || '').trim();
     if (!name || !status) continue;
-    const sj = String(r[9] || '').trim();
-    const sk = String(r[10] || '').trim();
-    const si = String(r[8] || '').trim();
+
+    const sj = cAssoc >= 0 ? String(r[cAssoc] || '').trim() : '';
+    const sk = cCombined >= 0 ? String(r[cCombined] || '').trim() : '';
+    const si = cComp >= 0 ? String(r[cComp] || '').trim() : '';
     const shimui_no = [sj, sk, si].find(v => v && v !== 'nan') || '';
-    const note = String(r[11] || '').trim();
+
+    const note = cNote >= 0 ? String(r[cNote] || '').trim() : '';
     rows.push({ name, status, shimui_no, note: note === 'nan' ? '' : note });
   }
   return rows;
