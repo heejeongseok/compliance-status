@@ -230,6 +230,13 @@
     word-break: break-all; line-height: 1.5;
   }
 
+  .app-no {
+    display: inline-block; font-size: 10px; font-weight: 500;
+    background: var(--accent-gray-bg); color: var(--text-secondary);
+    padding: 1px 7px; border-radius: 4px; margin-bottom: 5px;
+    font-variant-numeric: tabular-nums; user-select: all;
+  }
+
   .note-row { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
   .note-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); margin-right: 3px; }
   .note-new { color: var(--accent-orange); }
@@ -349,7 +356,7 @@
 
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="소재명 검색..." oninput="setQ(this.value)">
+      <input type="text" placeholder="소재명 또는 심의신청번호 검색..." oninput="setQ(this.value)">
     </div>
   </aside>
 
@@ -458,6 +465,12 @@ function parseXlsx(ab) {
   }
   const header = raw[hIdx].map(c => String(c || '').trim());
   const idx = name => header.indexOf(name);
+  // 공백 차이('심의 신청번호', '심의신청 번호' 등)는 무시하고 컬럼명 찾기
+  const norm = s => s.replace(/\s+/g, '');
+  const idxLoose = name => {
+    const exact = header.findIndex(h => norm(h) === name);
+    return exact >= 0 ? exact : header.findIndex(h => norm(h).includes(name));
+  };
 
   const cName = idx('파일명');
   const cStatus = idx('진행사항');
@@ -465,6 +478,7 @@ function parseXlsx(ab) {
   const cAssoc = idx('손보협회 심의필 번호');          // 협회 심의필 (최우선)
   const cCombined = idx('준법감시인 확인필 번호/손보협회 심의필 번호'); // 구버전 통합컬럼
   const cComp = idx('준법감시인 확인필 번호');          // 준법감시인 확인필
+  const cApp = idxLoose('심의신청번호');                // 심의신청번호 (없으면 생략)
 
   const rows = [];
   for (let i = hIdx + 1; i < raw.length; i++) {
@@ -479,7 +493,9 @@ function parseXlsx(ab) {
     const shimui_no = [sj, sk, si].find(v => v && v !== 'nan') || '';
 
     const note = cNote >= 0 ? String(r[cNote] || '').trim() : '';
-    rows.push({ name, status, shimui_no, note: note === 'nan' ? '' : note });
+    const appRaw = cApp >= 0 ? String(r[cApp] || '').trim() : '';
+    const app_no = appRaw === 'nan' ? '' : appRaw;
+    rows.push({ name, status, shimui_no, app_no, note: note === 'nan' ? '' : note });
   }
   return rows;
 }
@@ -551,6 +567,7 @@ function copyResults() {
       lastType = r.type;
     }
     text += `\n[${i+1}] ${r.name}\n`;
+    if (r.app_no) text += `    심의신청번호: ${r.app_no}\n`;
     if (r.type === 'to_done') {
       if (shimui) text += `    ${shimui}\n`;
     } else {
@@ -610,7 +627,7 @@ function toType(s) {
 function updateCounts() {
   let base = allRows;
   if (selProds.size > 0) base = base.filter(r => selProds.has(getProd(r.name)));
-  if (curQ) base = base.filter(r => r.name.toLowerCase().includes(curQ.toLowerCase()));
+  if (curQ) base = base.filter(r => matchQ(r, curQ));
   document.getElementById('cnt-all').textContent = base.length;
   document.getElementById('cnt-fix').textContent = base.filter(r => r.type === 'to_fix').length;
   document.getElementById('cnt-act').textContent = base.filter(r => r.type === 'to_active').length;
@@ -695,6 +712,12 @@ function syncStatCards() {
   }
 }
 function setQ(v) { curQ = v; curPage = 1; render(); }
+// 소재명 또는 심의신청번호로 검색 (대소문자·앞뒤 공백 무시)
+function matchQ(r, q) {
+  const k = q.trim().toLowerCase();
+  if (!k) return true;
+  return r.name.toLowerCase().includes(k) || String(r.app_no || '').toLowerCase().includes(k);
+}
 
 function addPeriod(s) {
   if (!s || !s.includes('손해보험협회 심의필') || s.includes('~')) return s;
@@ -727,7 +750,7 @@ function filtered() {
   let r = allRows;
   if (selStats.size > 0) r = r.filter(x => selStats.has(x.type));
   if (selProds.size > 0) r = r.filter(x => selProds.has(getProd(x.name)));
-  if (curQ) r = r.filter(x => x.name.toLowerCase().includes(curQ.toLowerCase()));
+  if (curQ) r = r.filter(x => matchQ(x, curQ));
   r = [...r].sort((a, b) => (TYPE_ORDER[a.type] ?? 9) - (TYPE_ORDER[b.type] ?? 9));
   return r;
 }
@@ -771,6 +794,7 @@ function render() {
     const shimui = addPeriod(r.shimui_no);
     const isNew = !r.prevStatus;
     const statusChanged = r.status !== r.prevStatus;
+    const appHtml = r.app_no ? `<div><span class="app-no">심의신청번호 ${r.app_no}</span></div>` : '';
     let shimuiHtml = shimui ? `<div><span class="shimui-no">📋 ${shimui}</span></div>` : '';
     let noteHtml = '';
     const hasCurr = r.note && r.note.trim(), hasPrev = r.prevNote && r.prevNote.trim();
@@ -788,7 +812,7 @@ function render() {
         <div class="card-name">${r.name}${isNew ? '<span class="new-tag">신규</span>' : ''}</div>
         <span class="prod-tag">${prod}</span>
       </div>
-      ${arrowRow}${shimuiHtml}${noteHtml}
+      ${appHtml}${arrowRow}${shimuiHtml}${noteHtml}
     </div>`;
   }).join('') + '</div>';
 
